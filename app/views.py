@@ -1,10 +1,18 @@
 from django.shortcuts import render
-from app.models import User
+from app.forms import NewUser
 
 def index(request):
     return render(request, 'app/index.html')
 
 def users(request):
-    user_list = User.objects.order_by('first_name')
-    users_dict = {'users':user_list}
-    return render(request, 'app/list.html', context=users_dict)
+    form = NewUser()
+    if request.method == 'POST':
+        form = NewUser(request.POST)
+
+        if form.is_valid():
+            form.save(commit=True)
+            return index(request)
+        else:
+            print('ERROR ON VALIDATE')
+
+    return render(request, 'app/list.html', {'form':form})
